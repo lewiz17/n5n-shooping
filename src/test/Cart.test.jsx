@@ -79,7 +79,7 @@ describe('Cart', () => {
     expect(actions).toHaveLength(2);
     expect(actions[1].type).toBe('cart/clearCart');
   });
-  test('dispatches the "purchaseProduct" action when "Comprar" button is clicked', () => {
+  test('Despacha la accion "purchaseProduct" al hacer click en Comprar', () => {
     const cartProducts = [
       {
         id: 1,
