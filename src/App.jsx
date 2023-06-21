@@ -1,13 +1,24 @@
-import { products as initProducts } from './mocks/products.json';
+import "./styles/global.scss";
 import ProductList from './components/ProductList';
-import Cart from './components/Cart';
+import ProductForm from './components/ProductForm';
+import Header from './components/Header';
+import Footer from "./components/Footer";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 
 function App() {
+
   return (
-    <div>
-      <Cart />
-      <ProductList products={initProducts} />
-    </div>
+    <>
+      <Router>
+        <Header />
+        <Routes>
+          <Route path="/" element={<ProductList />} />
+          <Route path="/add" element={<ProductForm />} />
+        </Routes>
+        <Footer />
+      </Router>
+    </>
   )
 }
 

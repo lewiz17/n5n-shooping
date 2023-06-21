@@ -13,6 +13,7 @@ const initialState = {
     : [],
   cartTotalQt: 0,
   cartTotalAmount: 0,
+  purchaseMade: false,
 };
 
 const cartSlice = createSlice({
@@ -29,10 +30,10 @@ const cartSlice = createSlice({
         state.cartProducts[productExistIndex] = {
           ...state.cartProducts[productExistIndex],
           cartQuantity:
-            state.cartProducts[productExistIndex].cartQuantity <
+            state.cartProducts[productExistIndex].cartQuantity + quantity >
             state.cartProducts[productExistIndex].amount
-              ? state.cartProducts[productExistIndex].cartQuantity+quantity
-              : state.cartProducts[productExistIndex].cartQuantity,
+              ? state.cartProducts[productExistIndex].amount
+              : state.cartProducts[productExistIndex].cartQuantity + quantity,
         };
       } else {
         let tempProductItem = { ...action.payload, cartQuantity: quantity };
@@ -42,11 +43,10 @@ const cartSlice = createSlice({
     },
     updateQuantity: (state, action) => {
       const { productId, quantity } = action.payload;
-      const product = state.cartProducts.find(
-        (item) => item.id === productId
-      );
+      const product = state.cartProducts.find((item) => item.id === productId);
 
       if (product) {
+        product.quantity = quantity;
         product.cartQuantity = quantity;
       }
 
@@ -85,9 +85,20 @@ const cartSlice = createSlice({
       state.cartProducts = [];
       updateLocalStorageCart(state);
     },
+    updatePurchase(state, action) {
+      const { pmade } = action.payload;
+      state.purchaseMade = pmade;
+      updateLocalStorageCart(state);
+    },
   },
 });
 
-export const { addToCart, updateQuantity, totalCart, removeFromCart, clearCart } =
-  cartSlice.actions;
+export const {
+  addToCart,
+  updateQuantity,
+  totalCart,
+  removeFromCart,
+  clearCart,
+  updatePurchase,
+} = cartSlice.actions;
 export default cartSlice.reducer;

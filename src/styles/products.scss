@@ -1,51 +1,78 @@
 // Default vars
-$shadow1: 0 0 10px 10px rgb(153 153 153 / 10%);
-$columns2: repeat(2, 1fr);
-$columns3: repeat(3, 1fr);
-$columns5: repeat(5, 1fr);
-$gap1: 1rem;
+$shadow1: 0 0 10px 5px rgba(153, 153, 153, 0.1);
+$columns: (2, 3, 5);
+$gap: 1rem;
+$gap2: 2rem;
 
 .container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    flex-flow: column;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-flow: column;
+  padding: 3rem 0px;
 
-    .products{
-        max-width: 1200px;
-        margin: 0 auto;
-        display: grid;
-        grid-gap: $gap1;
+  .products {
+    margin: 0 auto;
+    display: grid;
+    grid-gap: $gap2;
 
-        .item-product{
-            display: flex;
-            flex-direction: column;
-            gap: $gap1;
-            box-shadow: $shadow1;
-            border-radius: 10px;
-            padding: 1rem;
-
-            h3{
-                margin: 0;
-            }
-
-            .details{
-                display: flex;
-                justify-content: space-between;
-            }
-        }
-        
-    }
-    @media (min-width: 600px) {
-        .products { grid-template-columns: $columns2; }
-    }
-    
-    /* Screen larger than 900px */
-    @media (min-width: 900px) {
-        .products { grid-template-columns: $columns3; }
+    button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
     }
 
-    @media (min-width: 1200px) {
-        .products { grid-template-columns: $columns5; }
+    button:disabled {
+      pointer-events: none;
+    }
+
+    .item-product {
+      display: flex;
+      flex-direction: column;
+      gap: $gap;
+      box-shadow: $shadow1;
+      border-radius: 10px;
+      padding: 1rem;
+
+      h3 {
+        margin: 0;
+      }
+
+      .details {
+        display: flex;
+        justify-content: space-between;
+        font-size: 20px;
+        font-weight: bold;
+      }
+    }
+
+    .options {
+      display: flex;
+      justify-content: space-between;
+
+      &.no-stock {
+        justify-content: center;
+      }
+
+      .selqt {
+        display: inline-flex;
+        gap: 5px;
+        align-items: center;
+        font-size: 14px;
+      }
+
+      input[type=number]{
+        font-weight: bold;
+        text-align: center;
+      }
     }
   }
+
+  @each $column in $columns {
+    @media (min-width: calc(240px * #{$column})) {
+      .products {
+        grid-template-columns: repeat(#{$column}, 1fr);
+      }
+    }
+  }
+}

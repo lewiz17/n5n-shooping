@@ -1,24 +1,31 @@
 import '../styles/products.scss';
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart, updateQuantity } from '../slices/cartSlice';
+import { addToCart, removeFromCart, updatePurchase, updateQuantity } from '../slices/cartSlice';
+import { AddCartIcon, RemoveCartIcon } from './Icons';
+import { useTheme } from '../hooks/useTheme';
+import { AlertSuccess } from './Elements';
 
-const Product = ({ product }) => {
+export const Product = ({ product }) => {
+  const { themeName } = useTheme();
+
   const dispatch = useDispatch();
   const { cartProducts } = useSelector((state) => state.cart);
 
   const [quantity, setQuantity] = useState(1);
 
-  console.log(quantity);
-
   const handleAddToCart = () => {
     dispatch(addToCart({...product, quantity}));
   };
 
+  const handleRemoveItemCart = (product) => {
+    dispatch(removeFromCart(product));
+  };
+
   const handleQuantity = (pid, qt) => {
-   dispatch(updateQuantity({pid, qt}));
-   setQuantity(qt);
+    dispatch(updateQuantity({pid, qt}));
+    setQuantity(qt);
   }
 
   const isProductOutOfStock = cartProducts.some(
@@ -33,19 +40,26 @@ const Product = ({ product }) => {
       />
       <div className="details">
         <span className="name">{product.name}</span>
-        <span className="price">${product.price}</span>
+        <span className="price">$ {product.price}</span>
       </div>
-      <div className="options">
+      <div className={`options ${isProductOutOfStock ? 'no-stock': ''}`}>
         {!isProductOutOfStock && (
-          <input
-            type="number"
-            value={quantity}
-            max={product.amount}
-            onChange={(e) => handleQuantity(product.id, parseInt(e.target.value))}
-            />
+          <div className="selqt">
+            <strong>Cant:</strong>
+            <input
+              type="number"
+              value={quantity}
+              min={1}
+              max={product.amount}
+              onChange={(e) => handleQuantity(product.id, parseInt(e.target.value))}
+              />
+            </div>
         )}
-        <button onClick={handleAddToCart} disabled={isProductOutOfStock}>
-          {isProductOutOfStock ? 'Out of stock' : 'Add to Cart'}
+        <button onClick={() => {isProductOutOfStock
+              ? handleRemoveItemCart(product)
+              : handleAddToCart()
+          }}>
+          {isProductOutOfStock ? <RemoveCartIcon/> : <AddCartIcon theme={themeName}/>}
         </button>
       </div>
     </div>
@@ -61,28 +75,35 @@ Product.propTypes = {
   }).isRequired,
 };
 
-const ProductList = ({ products }) => {
+const ProductList = () => {
+  const { theme } = useTheme();
+  const { products }  = useSelector(state => state.data);
+  const { purchaseMade } = useSelector((state) => state.cart);
+
+  const dispatch = useDispatch();
+
+  const [buyMsg, setBuyMsg] = useState('');
+
+  useEffect(() => {
+    purchaseMade ? setBuyMsg('Gracias por tu compra!') : setBuyMsg('');
+    /** Simulate thank you after purchase */
+    setTimeout(() => {
+      dispatch(updatePurchase({pmade: false}));
+    }, 3000)
+  }, [products, dispatch, purchaseMade])
+
   return (
-    <div className="container">
-      <h2>Products</h2>
-      <div className="products">
-        {products.map((product) => (
-          <Product key={product.id} product={product} />
-        ))}
+    <div className="main" style={{ backgroundColor: theme.bgColor, color: theme.textColor }}>
+      { purchaseMade && <AlertSuccess>{buyMsg}</AlertSuccess>}
+      <div className="container">
+        <div className="products">
+          {products.map((product) => (
+            product.amount > 0 && <Product key={product.id} product={product} />
+          ))}
+        </div>
       </div>
     </div>
   );
-};
-
-ProductList.propTypes = {
-  products: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      name: PropTypes.string.isRequired,
-      price: PropTypes.number.isRequired,
-      amount: PropTypes.number.isRequired,
-    })
-  ).isRequired,
 };
 
 export default ProductList;
